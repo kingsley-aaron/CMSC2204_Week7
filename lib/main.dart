@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-//import 'package:week7project/Models/globalcustomer.dart';
+import 'package:week7project/Models/globalcustomer.dart';
 
 import 'Models/customer.dart';
-//import 'Views/EditCustomerPage.dart';
+import 'Views/EditCustomerPage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,7 +34,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<Customer> customer = [
+  List<Customer> customers = [
     Customer(1001, 'Kingsley', 'Occasional'),
     Customer(1002, 'Castro', 'Spender'),
     Customer(1003, 'Smith', 'Frequent'),
@@ -47,18 +47,23 @@ class _MyHomePageState extends State<MyHomePage> {
     Customer(1010, 'Hiltner', 'Occasional'),
   ];
 
-  void _handleButtonPress() {
-    setState(() {
-      // Navigator.push(
-      //     context,
-      //     MaterialPageRoute(
-      //         builder: (context) => EditCustomer(customer: customer))).then(
-      //   ((value) => {
-      //         setState(() => customer = GlobalCustomer()
-      //             .customer
-      //             .firstWhere((index) => index.Id == customer.Id))
-      //       }),
-      // );
+  void _handleButtonPress(Customer customer) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditCustomer(customer: customer),
+      ),
+    ).then((updatedCustomer) {
+      if (updatedCustomer != null) {
+        setState(() {
+          int index = GlobalCustomer()
+              .customer
+              .indexWhere((c) => c.Id == updatedCustomer.Id);
+          if (index != -1) {
+            GlobalCustomer().customer[index] = updatedCustomer;
+          }
+        });
+      }
     });
   }
 
@@ -73,7 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: customer.map((customer) {
+            children: customers.map((customer) {
               return Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Column(
@@ -84,28 +89,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     Text('Name: ${customer.Name}',
                         style: TextStyle(fontSize: 16)),
                     Text('Description: ${customer.Description}'),
-                    // ElevatedButton(
-                    //   onPressed: _handleButtonPress,
-                    //   child: Text("Edit Item"),
-                    // ),
-                    // GestureDetector(onTap: () {
-                    //   setState(() {
-                    //     Navigator.push(
-                    //       context,
-                    //       MaterialPageRoute(
-                    //         builder: (context) =>
-                    //             EditCustomer(customer: customer[index]),
-                    //       ),
-                    //     ).then(
-                    //       ((value) => {
-                    //             setState(() => customer = GlobalCustomer()
-                    //                 .customer
-                    //                 .firstWhere(
-                    //                     (index) => index.Id == customer.Id))
-                    //           }),
-                    //     );
-                    //   });
-                    // }),
+                    ElevatedButton(
+                      onPressed: () => _handleButtonPress(customer),
+                      child: Text("Edit Customer"),
+                    ),
                     const Divider(),
                   ],
                 ),

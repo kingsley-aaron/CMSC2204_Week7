@@ -29,17 +29,37 @@ class _EditCustomerState extends State<EditCustomer> {
   }
 
   void _updateItemPressed() {
-    Customer currentCustomer = GlobalCustomer()
-        .customer
-        .firstWhere((index) => index.Id == customer.Id);
+    if (customer.Name != customerNameController.text ||
+        customer.Description != customerDescriptionController.text) {
+      setState(() {
+        customer.Name = customerNameController.text;
+        customer.Description = customerDescriptionController.text;
+      });
 
-    if (currentCustomer.Name != customerNameController.text ||
-        currentCustomer.Description != customerDescriptionController.text) {
-      currentCustomer.Name = customerNameController.text;
-      currentCustomer.Description = customerDescriptionController.text;
+      // Update the customer in the GlobalCustomer class
+      int index =
+          GlobalCustomer().customer.indexWhere((c) => c.Id == customer.Id);
+      if (index != -1) {
+        GlobalCustomer().customer[index] = customer;
+      }
     }
 
-    Navigator.pop(context);
+    Navigator.pop(context, customer); // Pass the updated customer back
+  }
+
+  void _deleteItemPressed(Customer customerToDelete) {
+    setState(() {
+      int indexToDelete = GlobalCustomer()
+          .customer
+          .indexWhere((c) => c.Id == customerToDelete.Id);
+
+      if (indexToDelete != -1) {
+        // Remove the customer from the global customer list using the same instance
+        GlobalCustomer().customer.removeAt(indexToDelete);
+      }
+    });
+
+    Navigator.pop(context, customerToDelete); // Pass the deleted customer back
   }
 
   @override
@@ -62,10 +82,24 @@ class _EditCustomerState extends State<EditCustomer> {
                 controller: customerDescriptionController,
                 decoration: InputDecoration(labelText: "Description"),
               ),
-              ElevatedButton(
-                onPressed: _updateItemPressed,
-                child: Text("Update Customer"),
-              )
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  ElevatedButton(
+                    onPressed: _updateItemPressed,
+                    child: Text("Update Customer"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      _deleteItemPressed(customer);
+                    },
+                    child: Text("Delete"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
